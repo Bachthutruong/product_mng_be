@@ -31,6 +31,7 @@ exports.OrderSchema = zod_1.z.object({
     discountValue: zod_1.z.coerce.number().min(0).optional().nullable(),
     discountAmount: zod_1.z.coerce.number().min(0).optional().nullable().default(0),
     shippingFee: zod_1.z.coerce.number().min(0).optional().nullable().default(0),
+    storeShippingCost: zod_1.z.coerce.number().min(0).optional().nullable().default(0),
     totalAmount: zod_1.z.coerce.number().min(0),
     status: exports.OrderStatusSchema.default('pending'),
     orderDate: zod_1.z.date().default(() => new Date()),
@@ -60,6 +61,7 @@ exports.CreateOrderSchema = zod_1.z.object({
     discountType: exports.DiscountTypeSchema.optional().nullable(),
     discountValue: zod_1.z.coerce.number().min(0).optional().nullable(),
     shippingFee: zod_1.z.coerce.number().min(0).optional().nullable(),
+    storeShippingCost: zod_1.z.coerce.number().min(0).optional().nullable(),
     notes: zod_1.z.string().optional().nullable(),
 });
 exports.UpdateOrderSchema = zod_1.z.object({
@@ -68,6 +70,7 @@ exports.UpdateOrderSchema = zod_1.z.object({
     discountType: exports.DiscountTypeSchema.optional().nullable(),
     discountValue: zod_1.z.coerce.number().min(0).optional().nullable(),
     shippingFee: zod_1.z.coerce.number().min(0).optional().nullable(),
+    storeShippingCost: zod_1.z.coerce.number().min(0).optional().nullable(),
 });
 exports.UpdateOrderStatusSchema = zod_1.z.object({
     status: exports.OrderStatusSchema,

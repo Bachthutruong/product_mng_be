@@ -54,8 +54,12 @@ export const getOrders = async (req: AuthRequest, res: Response, next: NextFunct
       };
     }
     
+    console.log('getOrders query:', JSON.stringify(query, null, 2));
+    
     const orders = await db.collection('orders').find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum).toArray();
     const total = await db.collection('orders').countDocuments(query);
+    
+    console.log('getOrders result:', { count: orders.length, total, query });
 
     res.status(200).json({
       success: true,
@@ -207,6 +211,7 @@ export const createOrder = async (req: AuthRequest, res: Response, next: NextFun
       discountValue: orderData.discountValue || null,
       discountAmount,
       shippingFee,
+      storeShippingCost: orderData.storeShippingCost || 0,
       totalAmount,
       status: 'pending',
       orderDate: new Date(),
@@ -366,7 +371,7 @@ export const deleteOrder = async (req: AuthRequest, res: Response, next: NextFun
     }
 
     // Soft delete order
-    await db.collection('orders').updateOne(
+    const updateResult = await db.collection('orders').updateOne(
       { _id: new ObjectId(id) },
       {
         $set: {
@@ -378,6 +383,8 @@ export const deleteOrder = async (req: AuthRequest, res: Response, next: NextFun
         }
       }
     );
+    
+    console.log('deleteOrder result:', { orderId: id, modifiedCount: updateResult.modifiedCount });
 
     res.status(200).json({
       success: true,

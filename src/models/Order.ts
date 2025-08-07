@@ -37,6 +37,7 @@ export const OrderSchema = z.object({
   discountValue: z.coerce.number().min(0).optional().nullable(),
   discountAmount: z.coerce.number().min(0).optional().nullable().default(0), 
   shippingFee: z.coerce.number().min(0).optional().nullable().default(0),
+  storeShippingCost: z.coerce.number().min(0).optional().nullable().default(0),
   totalAmount: z.coerce.number().min(0), 
   status: OrderStatusSchema.default('pending'),
   orderDate: z.date().default(() => new Date()),
@@ -70,6 +71,7 @@ export const CreateOrderSchema = z.object({
   discountType: DiscountTypeSchema.optional().nullable(),
   discountValue: z.coerce.number().min(0).optional().nullable(), 
   shippingFee: z.coerce.number().min(0).optional().nullable(),
+  storeShippingCost: z.coerce.number().min(0).optional().nullable(),
   notes: z.string().optional().nullable(),
 });
 export type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
@@ -80,6 +82,7 @@ export const UpdateOrderSchema = z.object({
   discountType: DiscountTypeSchema.optional().nullable(),
   discountValue: z.coerce.number().min(0).optional().nullable(),
   shippingFee: z.coerce.number().min(0).optional().nullable(),
+  storeShippingCost: z.coerce.number().min(0).optional().nullable(),
 });
 export type UpdateOrderInput = z.infer<typeof UpdateOrderSchema>;
 

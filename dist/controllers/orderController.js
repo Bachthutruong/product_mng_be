@@ -30,8 +30,10 @@ const getOrders = async (req, res, next) => {
                 $lte: new Date(endDate)
             };
         }
+        console.log('getOrders query:', JSON.stringify(query, null, 2));
         const orders = await db.collection('orders').find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum).toArray();
         const total = await db.collection('orders').countDocuments(query);
+        console.log('getOrders result:', { count: orders.length, total, query });
         res.status(200).json({
             success: true,
             data: orders,
@@ -155,6 +157,7 @@ const createOrder = async (req, res, next) => {
             discountValue: orderData.discountValue || null,
             discountAmount,
             shippingFee,
+            storeShippingCost: orderData.storeShippingCost || 0,
             totalAmount,
             status: 'pending',
             orderDate: new Date(),
@@ -274,7 +277,7 @@ const deleteOrder = async (req, res, next) => {
             });
             return;
         }
-        await db.collection('orders').updateOne({ _id: new mongodb_1.ObjectId(id) }, {
+        const updateResult = await db.collection('orders').updateOne({ _id: new mongodb_1.ObjectId(id) }, {
             $set: {
                 isDeleted: true,
                 deletedAt: new Date(),
@@ -283,6 +286,7 @@ const deleteOrder = async (req, res, next) => {
                 updatedAt: new Date()
             }
         });
+        console.log('deleteOrder result:', { orderId: id, modifiedCount: updateResult.modifiedCount });
         res.status(200).json({
             success: true,
             message: 'Order deleted successfully'
