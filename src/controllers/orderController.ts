@@ -34,7 +34,7 @@ export const getOrders = async (req: AuthRequest, res: Response, next: NextFunct
     const skip = (pageNum - 1) * limitNum;
 
     // Build query
-    let query: any = {};
+    let query: any = { isDeleted: { $ne: true } }; // Exclude soft deleted orders
     if (search) {
       query.$or = [
         { orderNumber: { $regex: search, $options: 'i' } },

@@ -11,7 +11,7 @@ const getOrders = async (req, res, next) => {
         const pageNum = parseInt(page, 10);
         const limitNum = parseInt(limit, 10);
         const skip = (pageNum - 1) * limitNum;
-        let query = {};
+        let query = { isDeleted: { $ne: true } };
         if (search) {
             query.$or = [
                 { orderNumber: { $regex: search, $options: 'i' } },
