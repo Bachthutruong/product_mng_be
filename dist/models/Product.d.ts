@@ -105,6 +105,7 @@ export declare const ProductSchema: z.ZodObject<{
     }>, "many">>;
     expiryDate: z.ZodDate;
     lowStockThreshold: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
+    discontinued: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
     priceHistory: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodObject<{
         price: z.ZodNumber;
         changedAt: z.ZodDate;
@@ -177,6 +178,7 @@ export declare const ProductSchema: z.ZodObject<{
     cost: number;
     stock: number;
     lowStockThreshold: number;
+    discontinued: boolean;
     priceHistory: {
         price: number;
         changedAt: Date;
@@ -233,6 +235,7 @@ export declare const ProductSchema: z.ZodObject<{
         isPrimary?: boolean | undefined;
     }[] | undefined;
     lowStockThreshold?: number | undefined;
+    discontinued?: boolean | undefined;
     priceHistory?: {
         price: number;
         changedAt: Date;
@@ -286,6 +289,7 @@ export declare const CreateProductSchema: z.ZodObject<Omit<{
     }>, "many">>;
     expiryDate: z.ZodDate;
     lowStockThreshold: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
+    discontinued: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
     priceHistory: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodObject<{
         price: z.ZodNumber;
         changedAt: z.ZodDate;
@@ -358,6 +362,7 @@ export declare const CreateProductSchema: z.ZodObject<Omit<{
     cost: number;
     stock: number;
     lowStockThreshold: number;
+    discontinued: boolean;
     sku?: string | undefined;
     categoryId?: string | undefined;
     categoryName?: string | undefined;
@@ -385,6 +390,7 @@ export declare const CreateProductSchema: z.ZodObject<Omit<{
         isPrimary?: boolean | undefined;
     }[] | undefined;
     lowStockThreshold?: number | undefined;
+    discontinued?: boolean | undefined;
 }>;
 export type CreateProductInput = z.infer<typeof CreateProductSchema>;
 export declare const UpdateProductSchema: z.ZodObject<{
@@ -412,6 +418,7 @@ export declare const UpdateProductSchema: z.ZodObject<{
         isPrimary?: boolean | undefined;
     }>, "many">>>;
     lowStockThreshold: z.ZodOptional<z.ZodDefault<z.ZodOptional<z.ZodNumber>>>;
+    discontinued: z.ZodOptional<z.ZodDefault<z.ZodOptional<z.ZodBoolean>>>;
 }, "strip", z.ZodTypeAny, {
     name?: string | undefined;
     price?: number | undefined;
@@ -429,6 +436,7 @@ export declare const UpdateProductSchema: z.ZodObject<{
         isPrimary: boolean;
     }[] | undefined;
     lowStockThreshold?: number | undefined;
+    discontinued?: boolean | undefined;
 }, {
     name?: string | undefined;
     price?: number | undefined;
@@ -446,5 +454,6 @@ export declare const UpdateProductSchema: z.ZodObject<{
         isPrimary?: boolean | undefined;
     }[] | undefined;
     lowStockThreshold?: number | undefined;
+    discontinued?: boolean | undefined;
 }>;
 export type UpdateProductInput = z.infer<typeof UpdateProductSchema>;

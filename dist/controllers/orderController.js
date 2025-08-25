@@ -212,11 +212,36 @@ const updateOrder = async (req, res, next) => {
             });
             return;
         }
-        const result = await db.collection('orders').findOneAndUpdate({ _id: new mongodb_1.ObjectId(id) }, {
-            $set: {
-                ...updateData,
-                updatedAt: new Date()
+        const updateFields = {
+            ...updateData,
+            updatedAt: new Date()
+        };
+        if (updateData.customerId && updateData.customerId !== existingOrder.customerId) {
+            const customer = await db.collection('customers').findOne({ _id: new mongodb_1.ObjectId(updateData.customerId) });
+            if (customer) {
+                updateFields.customerName = customer.name;
             }
+        }
+        if (updateData.items) {
+            const subtotal = updateData.items.reduce((acc, item) => {
+                return acc + (item.quantity * item.unitPrice);
+            }, 0);
+            let discountAmount = 0;
+            if (updateData.discountType === 'percentage' && updateData.discountValue) {
+                discountAmount = (subtotal * updateData.discountValue) / 100;
+            }
+            else if (updateData.discountType === 'fixed' && updateData.discountValue) {
+                discountAmount = updateData.discountValue;
+            }
+            discountAmount = Math.max(0, Math.min(discountAmount, subtotal));
+            const shippingFee = updateData.shippingFee || 0;
+            const totalAmount = subtotal - discountAmount + shippingFee;
+            updateFields.subtotal = subtotal;
+            updateFields.discountAmount = discountAmount;
+            updateFields.totalAmount = totalAmount;
+        }
+        const result = await db.collection('orders').findOneAndUpdate({ _id: new mongodb_1.ObjectId(id) }, {
+            $set: updateFields
         }, { returnDocument: 'after' });
         res.status(200).json({
             success: true,

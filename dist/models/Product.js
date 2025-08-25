@@ -48,6 +48,7 @@ exports.ProductSchema = zod_1.z.object({
     })).optional(),
     expiryDate: zod_1.z.coerce.date({ message: "到期日期是必需的" }),
     lowStockThreshold: zod_1.z.coerce.number().int().min(0).optional().default(0),
+    discontinued: zod_1.z.boolean().optional().default(false),
     priceHistory: zod_1.z.array(exports.PriceHistoryEntrySchema).optional().default([]),
     stockInHistory: zod_1.z.array(exports.StockInEntrySchema).optional().default([]),
     batches: zod_1.z.array(exports.ProductBatchSchema).optional().default([]),

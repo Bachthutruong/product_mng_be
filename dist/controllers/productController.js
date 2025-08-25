@@ -11,7 +11,7 @@ const Product_1 = require("../models/Product");
 const getProducts = async (req, res, next) => {
     try {
         const db = (0, database_1.getDB)();
-        const { page = '1', limit = '10', search = '', categoryId = '', stockStatus = 'all' } = req.query;
+        const { page = '1', limit = '10', search = '', categoryId = '', stockStatus = 'all', discontinued = 'all' } = req.query;
         const pageNum = parseInt(page);
         const limitNum = parseInt(limit);
         const skip = (pageNum - 1) * limitNum;
@@ -31,6 +31,21 @@ const getProducts = async (req, res, next) => {
         }
         else if (stockStatus === 'out-of-stock') {
             filter.stock = 0;
+        }
+        else if (stockStatus === 'inStock') {
+            filter.stock = { $gt: 0 };
+        }
+        if (discontinued === 'true') {
+            filter.discontinued = true;
+        }
+        else if (discontinued === 'false') {
+            filter.$and = filter.$and || [];
+            filter.$and.push({
+                $or: [
+                    { discontinued: { $ne: true } },
+                    { discontinued: { $exists: false } }
+                ]
+            });
         }
         const products = await db.collection('products')
             .find(filter)

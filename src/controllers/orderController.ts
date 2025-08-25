@@ -279,14 +279,48 @@ export const updateOrder = async (req: AuthRequest, res: Response, next: NextFun
       return;
     }
 
+    // Prepare update data
+    const updateFields: any = {
+      ...updateData,
+      updatedAt: new Date()
+    };
+
+    // If customer is being updated, get customer name
+    if (updateData.customerId && updateData.customerId !== existingOrder.customerId) {
+      const customer = await db.collection('customers').findOne({ _id: new ObjectId(updateData.customerId) });
+      if (customer) {
+        updateFields.customerName = customer.name;
+      }
+    }
+
+    // If items are being updated, recalculate totals
+    if (updateData.items) {
+      const subtotal = updateData.items.reduce((acc: number, item: any) => {
+        return acc + (item.quantity * item.unitPrice);
+      }, 0);
+
+      let discountAmount = 0;
+      if (updateData.discountType === 'percentage' && updateData.discountValue) {
+        discountAmount = (subtotal * updateData.discountValue) / 100;
+      } else if (updateData.discountType === 'fixed' && updateData.discountValue) {
+        discountAmount = updateData.discountValue;
+      }
+      // If discountType is null or undefined, discountAmount remains 0
+      discountAmount = Math.max(0, Math.min(discountAmount, subtotal));
+
+      const shippingFee = updateData.shippingFee || 0;
+      const totalAmount = subtotal - discountAmount + shippingFee;
+
+      updateFields.subtotal = subtotal;
+      updateFields.discountAmount = discountAmount;
+      updateFields.totalAmount = totalAmount;
+    }
+
     // Update order
     const result = await db.collection('orders').findOneAndUpdate(
       { _id: new ObjectId(id) },
       { 
-        $set: {
-          ...updateData,
-          updatedAt: new Date()
-        }
+        $set: updateFields
       },
       { returnDocument: 'after' }
     );

@@ -83,14 +83,47 @@ export const addUser = async (req: Request, res: Response, next: NextFunction): 
 export const updateUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const { fullName, role } = req.body;
+    const { name, email, role } = req.body;
+    
+    if (!ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid user ID' });
+      return;
+    }
+    
+    // Validate input data
+    if (!name || !email || !role) {
+      res.status(400).json({ success: false, error: 'Please provide all required fields' });
+      return;
+    }
+    
+    if (!['admin', 'employee'].includes(role)) {
+      res.status(400).json({ success: false, error: 'Invalid role' });
+      return;
+    }
     
     const db = getDB();
+    
+    // Check if email is already taken by another user
+    const existingUser = await db.collection('users').findOne({ 
+      email, 
+      _id: { $ne: new ObjectId(id) } 
+    });
+    if (existingUser) {
+      res.status(400).json({ success: false, error: 'Email already exists' });
+      return;
+    }
+    
     const result = await db.collection('users').findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: { fullName, role, updatedAt: new Date() } },
+      { $set: { name, email, role, updatedAt: new Date() } },
       { returnDocument: 'after', projection: { password: 0 } }
     );
+    
+    if (!result) {
+      res.status(404).json({ success: false, error: 'User not found' });
+      return;
+    }
+    
     res.status(200).json({ success: true, data: result });
   } catch (error) {
     next(error);

@@ -20,7 +20,7 @@ export const OrderLineItemSchema = z.object({
 });
 export type OrderLineItem = z.infer<typeof OrderLineItemSchema>;
 
-export const DiscountTypeSchema = z.enum(['percentage', 'fixed']);
+export const DiscountTypeSchema = z.enum(['percentage', 'fixed']).nullable();
 export type DiscountType = z.infer<typeof DiscountTypeSchema>;
 
 export const OrderStatusSchema = z.enum(['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'completed', 'returned']);
@@ -77,12 +77,22 @@ export const CreateOrderSchema = z.object({
 export type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
 
 export const UpdateOrderSchema = z.object({
+  customerId: z.string().min(1, "客戶是必需的").optional(),
+  items: z.array(z.object({
+    productId: z.string().min(1, "產品是必需的"),
+    productName: z.string(),
+    quantity: z.coerce.number().int().min(1, "數量必須至少為 1"),
+    unitPrice: z.coerce.number(),
+  })).min(1, "訂單必須至少包含一個項目。").optional(),
   status: OrderStatusSchema.optional(),
   notes: z.string().optional().nullable(),
   discountType: DiscountTypeSchema.optional().nullable(),
   discountValue: z.coerce.number().min(0).optional().nullable(),
   shippingFee: z.coerce.number().min(0).optional().nullable(),
   storeShippingCost: z.coerce.number().min(0).optional().nullable(),
+  totalAmount: z.coerce.number().optional(),
+  discountAmount: z.coerce.number().optional(),
+  subtotal: z.coerce.number().optional(),
 });
 export type UpdateOrderInput = z.infer<typeof UpdateOrderSchema>;
 

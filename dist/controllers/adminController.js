@@ -68,9 +68,33 @@ exports.addUser = addUser;
 const updateUser = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { fullName, role } = req.body;
+        const { name, email, role } = req.body;
+        if (!mongodb_1.ObjectId.isValid(id)) {
+            res.status(400).json({ success: false, error: 'Invalid user ID' });
+            return;
+        }
+        if (!name || !email || !role) {
+            res.status(400).json({ success: false, error: 'Please provide all required fields' });
+            return;
+        }
+        if (!['admin', 'employee'].includes(role)) {
+            res.status(400).json({ success: false, error: 'Invalid role' });
+            return;
+        }
         const db = (0, database_1.getDB)();
-        const result = await db.collection('users').findOneAndUpdate({ _id: new mongodb_1.ObjectId(id) }, { $set: { fullName, role, updatedAt: new Date() } }, { returnDocument: 'after', projection: { password: 0 } });
+        const existingUser = await db.collection('users').findOne({
+            email,
+            _id: { $ne: new mongodb_1.ObjectId(id) }
+        });
+        if (existingUser) {
+            res.status(400).json({ success: false, error: 'Email already exists' });
+            return;
+        }
+        const result = await db.collection('users').findOneAndUpdate({ _id: new mongodb_1.ObjectId(id) }, { $set: { name, email, role, updatedAt: new Date() } }, { returnDocument: 'after', projection: { password: 0 } });
+        if (!result) {
+            res.status(404).json({ success: false, error: 'User not found' });
+            return;
+        }
         res.status(200).json({ success: true, data: result });
     }
     catch (error) {

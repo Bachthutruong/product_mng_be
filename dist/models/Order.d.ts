@@ -65,7 +65,7 @@ export declare const OrderLineItemSchema: z.ZodObject<{
     }[] | undefined;
 }>;
 export type OrderLineItem = z.infer<typeof OrderLineItemSchema>;
-export declare const DiscountTypeSchema: z.ZodEnum<["percentage", "fixed"]>;
+export declare const DiscountTypeSchema: z.ZodNullable<z.ZodEnum<["percentage", "fixed"]>>;
 export type DiscountType = z.infer<typeof DiscountTypeSchema>;
 export declare const OrderStatusSchema: z.ZodEnum<["pending", "processing", "shipped", "delivered", "cancelled", "completed", "returned"]>;
 export type OrderStatus = z.infer<typeof OrderStatusSchema>;
@@ -126,7 +126,7 @@ export declare const OrderSchema: z.ZodObject<{
         }[] | undefined;
     }>, "many">;
     subtotal: z.ZodNumber;
-    discountType: z.ZodNullable<z.ZodOptional<z.ZodEnum<["percentage", "fixed"]>>>;
+    discountType: z.ZodNullable<z.ZodOptional<z.ZodNullable<z.ZodEnum<["percentage", "fixed"]>>>>;
     discountValue: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
     discountAmount: z.ZodDefault<z.ZodNullable<z.ZodOptional<z.ZodNumber>>>;
     shippingFee: z.ZodDefault<z.ZodNullable<z.ZodOptional<z.ZodNumber>>>;
@@ -256,7 +256,7 @@ export declare const CreateOrderSchema: z.ZodObject<{
         cost?: number | undefined;
         productSku?: string | undefined;
     }>, "many">;
-    discountType: z.ZodNullable<z.ZodOptional<z.ZodEnum<["percentage", "fixed"]>>>;
+    discountType: z.ZodNullable<z.ZodOptional<z.ZodNullable<z.ZodEnum<["percentage", "fixed"]>>>>;
     discountValue: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
     shippingFee: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
     storeShippingCost: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
@@ -296,26 +296,66 @@ export declare const CreateOrderSchema: z.ZodObject<{
 }>;
 export type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
 export declare const UpdateOrderSchema: z.ZodObject<{
+    customerId: z.ZodOptional<z.ZodString>;
+    items: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        productId: z.ZodString;
+        productName: z.ZodString;
+        quantity: z.ZodNumber;
+        unitPrice: z.ZodNumber;
+    }, "strip", z.ZodTypeAny, {
+        productId: string;
+        productName: string;
+        quantity: number;
+        unitPrice: number;
+    }, {
+        productId: string;
+        productName: string;
+        quantity: number;
+        unitPrice: number;
+    }>, "many">>;
     status: z.ZodOptional<z.ZodEnum<["pending", "processing", "shipped", "delivered", "cancelled", "completed", "returned"]>>;
     notes: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    discountType: z.ZodNullable<z.ZodOptional<z.ZodEnum<["percentage", "fixed"]>>>;
+    discountType: z.ZodNullable<z.ZodOptional<z.ZodNullable<z.ZodEnum<["percentage", "fixed"]>>>>;
     discountValue: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
     shippingFee: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
     storeShippingCost: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
+    totalAmount: z.ZodOptional<z.ZodNumber>;
+    discountAmount: z.ZodOptional<z.ZodNumber>;
+    subtotal: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     status?: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "completed" | "returned" | undefined;
     notes?: string | null | undefined;
+    customerId?: string | undefined;
+    items?: {
+        productId: string;
+        productName: string;
+        quantity: number;
+        unitPrice: number;
+    }[] | undefined;
+    subtotal?: number | undefined;
     discountType?: "fixed" | "percentage" | null | undefined;
     discountValue?: number | null | undefined;
+    discountAmount?: number | undefined;
     shippingFee?: number | null | undefined;
     storeShippingCost?: number | null | undefined;
+    totalAmount?: number | undefined;
 }, {
     status?: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "completed" | "returned" | undefined;
     notes?: string | null | undefined;
+    customerId?: string | undefined;
+    items?: {
+        productId: string;
+        productName: string;
+        quantity: number;
+        unitPrice: number;
+    }[] | undefined;
+    subtotal?: number | undefined;
     discountType?: "fixed" | "percentage" | null | undefined;
     discountValue?: number | null | undefined;
+    discountAmount?: number | undefined;
     shippingFee?: number | null | undefined;
     storeShippingCost?: number | null | undefined;
+    totalAmount?: number | undefined;
 }>;
 export type UpdateOrderInput = z.infer<typeof UpdateOrderSchema>;
 export declare const UpdateOrderStatusSchema: z.ZodObject<{

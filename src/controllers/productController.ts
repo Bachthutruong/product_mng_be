@@ -28,7 +28,8 @@ export const getProducts = async (req: AuthRequest, res: Response, next: NextFun
       limit = '10',
       search = '',
       categoryId = '',
-      stockStatus = 'all' // 'all', 'low', 'out-of-stock'
+      stockStatus = 'all', // 'all', 'low', 'out-of-stock'
+      discontinued = 'all' // 'all', 'true', 'false'
     } = req.query;
 
     const pageNum = parseInt(page as string);
@@ -57,6 +58,21 @@ export const getProducts = async (req: AuthRequest, res: Response, next: NextFun
       filter.$expr = { $lte: ['$stock', '$lowStockThreshold'] };
     } else if (stockStatus === 'out-of-stock') {
       filter.stock = 0;
+    } else if (stockStatus === 'inStock') {
+      filter.stock = { $gt: 0 };
+    }
+
+    // Discontinued filter
+    if (discontinued === 'true') {
+      filter.discontinued = true;
+    } else if (discontinued === 'false') {
+      filter.$and = filter.$and || [];
+      filter.$and.push({
+        $or: [
+          { discontinued: { $ne: true } },
+          { discontinued: { $exists: false } }
+        ]
+      });
     }
 
     // Get products with pagination

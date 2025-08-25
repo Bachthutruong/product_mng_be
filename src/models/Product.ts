@@ -56,6 +56,7 @@ export const ProductSchema = z.object({
   })).optional(),
   expiryDate: z.coerce.date({ message: "到期日期是必需的" }),
   lowStockThreshold: z.coerce.number().int().min(0).optional().default(0),
+  discontinued: z.boolean().optional().default(false), // Add discontinued field
   priceHistory: z.array(PriceHistoryEntrySchema).optional().default([]),
   stockInHistory: z.array(StockInEntrySchema).optional().default([]),
   batches: z.array(ProductBatchSchema).optional().default([]), // Track individual batches

@@ -18,7 +18,7 @@ exports.OrderLineItemSchema = zod_1.z.object({
     notes: zod_1.z.string().optional().nullable(),
     batchesUsed: zod_1.z.array(exports.OrderBatchUsageSchema).optional().default([]),
 });
-exports.DiscountTypeSchema = zod_1.z.enum(['percentage', 'fixed']);
+exports.DiscountTypeSchema = zod_1.z.enum(['percentage', 'fixed']).nullable();
 exports.OrderStatusSchema = zod_1.z.enum(['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'completed', 'returned']);
 exports.OrderSchema = zod_1.z.object({
     _id: zod_1.z.any().optional(),
@@ -65,12 +65,22 @@ exports.CreateOrderSchema = zod_1.z.object({
     notes: zod_1.z.string().optional().nullable(),
 });
 exports.UpdateOrderSchema = zod_1.z.object({
+    customerId: zod_1.z.string().min(1, "客戶是必需的").optional(),
+    items: zod_1.z.array(zod_1.z.object({
+        productId: zod_1.z.string().min(1, "產品是必需的"),
+        productName: zod_1.z.string(),
+        quantity: zod_1.z.coerce.number().int().min(1, "數量必須至少為 1"),
+        unitPrice: zod_1.z.coerce.number(),
+    })).min(1, "訂單必須至少包含一個項目。").optional(),
     status: exports.OrderStatusSchema.optional(),
     notes: zod_1.z.string().optional().nullable(),
     discountType: exports.DiscountTypeSchema.optional().nullable(),
     discountValue: zod_1.z.coerce.number().min(0).optional().nullable(),
     shippingFee: zod_1.z.coerce.number().min(0).optional().nullable(),
     storeShippingCost: zod_1.z.coerce.number().min(0).optional().nullable(),
+    totalAmount: zod_1.z.coerce.number().optional(),
+    discountAmount: zod_1.z.coerce.number().optional(),
+    subtotal: zod_1.z.coerce.number().optional(),
 });
 exports.UpdateOrderStatusSchema = zod_1.z.object({
     status: exports.OrderStatusSchema,
