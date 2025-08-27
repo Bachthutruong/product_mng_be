@@ -13,7 +13,10 @@ export const getDashboardStats = async (_req: AuthRequest, res: Response, next: 
   try {
     const db = getDB();
 
-    const totalProducts = await db.collection('products').countDocuments();
+    // Only count active products (not discontinued)
+    const totalProducts = await db.collection('products').countDocuments({
+      discontinued: { $ne: true }
+    });
     const totalCustomers = await db.collection('customers').countDocuments();
     const activeOrders = await db.collection('orders').countDocuments({
       status: { $in: ['pending', 'processing', 'shipped'] },
@@ -91,15 +94,24 @@ export const getRecentActivity = async (_req: AuthRequest, res: Response, next: 
 export const getInventoryAlerts = async (_req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const db = getDB();
+    
+    // Get low stock products (excluding discontinued products)
     const lowStockProducts = await db.collection('products').find({
-      $expr: { $lte: ['$stock', '$lowStockThreshold'] }
+      $and: [
+        { $expr: { $lte: ['$stock', '$lowStockThreshold'] } },
+        { discontinued: { $ne: true } } // Exclude discontinued products
+      ]
     }).limit(10).toArray();
 
     const oneYearFromNow = new Date();
     oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
 
+    // Get nearly expired products (excluding discontinued products)
     const nearlyExpiredProducts = await db.collection('products').find({
-      expiryDate: { $lte: oneYearFromNow }
+      $and: [
+        { expiryDate: { $lte: oneYearFromNow } },
+        { discontinued: { $ne: true } } // Exclude discontinued products
+      ]
     }).limit(10).toArray();
 
     res.status(200).json({

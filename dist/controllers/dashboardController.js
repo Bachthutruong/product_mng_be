@@ -71,14 +71,26 @@ exports.getRecentActivity = getRecentActivity;
 const getInventoryAlerts = async (_req, res, next) => {
     try {
         const db = (0, database_1.getDB)();
+        
+        // Get low stock products (excluding discontinued products)
         const lowStockProducts = await db.collection('products').find({
-            $expr: { $lte: ['$stock', '$lowStockThreshold'] }
+            $and: [
+                { $expr: { $lte: ['$stock', '$lowStockThreshold'] } },
+                { discontinued: { $ne: true } } // Exclude discontinued products
+            ]
         }).limit(10).toArray();
+        
         const oneYearFromNow = new Date();
         oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+        
+        // Get nearly expired products (excluding discontinued products)
         const nearlyExpiredProducts = await db.collection('products').find({
-            expiryDate: { $lte: oneYearFromNow }
+            $and: [
+                { expiryDate: { $lte: oneYearFromNow } },
+                { discontinued: { $ne: true } } // Exclude discontinued products
+            ]
         }).limit(10).toArray();
+        
         res.status(200).json({
             success: true,
             data: {
